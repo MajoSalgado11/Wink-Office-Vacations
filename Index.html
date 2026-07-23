@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vacation Tracker · Wink Office</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Poppins:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1a3a;
+    --ink-soft:#6b6a8c;
+    --line:#e0dff2;
+    --paper:#faf9ff;
+    --card:#ffffff;
+    --sand:#e8e4fb;
+    --teal:#4f46e5;
+    --teal-deep:#312e81;
+    --teal-pale:#eceafd;
+    --violet:#9333ea;
+    --coral:#c0562f;
+    --coral-pale:#faece7;
+    --amber:#a97418;
+    --amber-pale:#faf0da;
+    --red:#a32d2d;
+    --red-pale:#fcebeb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .wrap{
+    font-family: 'Poppins','Inter',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    padding:2.5rem 2rem 4rem;
+    max-width:1080px;
+    margin:0 auto;
+  }
+  .masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:3px solid var(--teal);
+    padding-bottom:1rem;
+    margin-bottom:0.25rem;
+  }
+  .brand-block{
+    display:flex;
+    align-items:center;
+    gap:0.9rem;
+  }
+  .brand-logo{
+    width:44px;
+    height:44px;
+    border-radius:11px;
+    object-fit:cover;
+    flex-shrink:0;
+    box-shadow:0 2px 6px rgba(28,26,58,0.18);
+  }
+  .masthead h1{
+    font-family:'Outfit','Poppins',sans-serif;
+    font-size:32px;
+    font-weight:700;
+    letter-spacing:0.01em;
+    margin:0;
+    background:linear-gradient(100deg, var(--teal-deep), var(--teal) 55%, var(--violet));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .masthead .stamp{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--violet);
+    text-align:right;
+    line-height:1.6;
+  }
+  .subline{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0.6rem 0 1.75rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+  .notice{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    background:var(--sand);
+    border:1px solid var(--teal);
+    color:var(--teal-deep);
+    font-size:12.5px;
+    padding:0.6rem 0.9rem;
+    border-radius:9px;
+    margin-bottom:2rem;
+    line-height:1.55;
+  }
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:2px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:2.5rem;
+  }
+  .kpi{
+    padding:1rem 1.1rem;
+    color:#fff;
+    border-radius:12px;
+  }
+  .kpi .n{
+    font-size:28px;
+    line-height:1;
+  }
+  .kpi .l{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.09em;
+    opacity:0.82;
+    margin-top:0.4rem;
+  }
+  .team{
+    margin-bottom:2.4rem;
+    border:1px solid var(--line);
+    background:var(--card);
+    overflow:hidden;
+    border-radius:14px;
+  }
+  .team-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0.85rem 1.2rem;
+    color:#fff;
+  }
+  .team-head h2{
+    font-family:'Outfit','Poppins',sans-serif;
+    font-size:17px;
+    font-weight:600;
+    margin:0;
+    letter-spacing:0.02em;
+  }
+  .team-head .count{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:11px;
+    color:rgba(255,255,255,0.78);
+    letter-spacing:0.05em;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:13px;
+  }
+  th{
+    text-align:left;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    font-weight:400;
+    padding:0.6rem 1rem 0.5rem;
+    border-bottom:1px solid var(--line);
+  }
+  td{
+    padding:0.55rem 1rem;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  tr:last-child td{border-bottom:none;}
+  .name{font-weight:600;}
+  .name.on-vacation{
+    color:var(--red);
+    text-decoration:underline;
+    text-decoration-thickness:2px;
+    text-underline-offset:3px;
+  }
+  .vac-badge{
+    display:block;
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--red);
+    margin-top:1px;
+  }
+  .req-row{margin-bottom:2px;}
+  .req-dates{color:var(--ink);}
+  .req-note{color:var(--ink-soft); font-size:11.5px;}
+  .tag{
+    display:inline-block;
+    font-size:10.5px;
+    padding:1px 7px;
+    border-radius:10px;
+    margin-left:6px;
+  }
+  .tag.taken{background:var(--teal-pale); color:var(--teal-deep);}
+  .empty-cell{color:var(--ink-soft); font-style:italic; font-size:12px;}
+  .del{
+    background:none; border:none; color:var(--red); cursor:pointer;
+    font-size:11px; padding:0 4px; font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+  }
+  .del:hover{text-decoration:underline;}
+  .accr-input{
+    width:48px;
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:3px 5px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .balance{font-weight:600;}
+  .balance.low{color:var(--coral);}
+  .balance.na{color:var(--ink-soft); font-weight:400; font-style:italic;}
+  .usage-cell{min-width:170px;}
+  .usage-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .usage-top .used-n{
+    font-size:15px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .bar-track{
+    width:100%;
+    height:9px;
+    background:var(--sand);
+    border-radius:9px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    border-radius:9px;
+  }
+  .usage-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:5px;
+  }
+  .total-edit{
+    display:inline-flex;
+    align-items:center;
+    gap:3px;
+  }
+  .total-input{
+    width:34px;
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:11px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:1px 4px;
+    background:#fff;
+    color:var(--ink);
+    text-align:center;
+  }
+  .src-note{
+    font-size:10px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .unreg-box{
+    margin-top:8px;
+    background:var(--amber-pale);
+    border:1px solid var(--amber);
+    border-radius:9px;
+    padding:6px 9px;
+    font-size:11px;
+    color:#5c3d09;
+  }
+  .unreg-box .ub-head{
+    font-weight:700;
+    margin-bottom:3px;
+  }
+  .unreg-box .ub-row{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .unreg-box .ub-warn{
+    margin-top:5px;
+    font-style:italic;
+    color:var(--coral);
+  }
+  .nosys{
+    font-size:11px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .holiday-box{
+    margin-top:8px;
+    background:var(--teal-pale);
+    border:1px solid var(--teal);
+    border-radius:9px;
+    padding:6px 9px;
+    font-size:11px;
+    color:var(--teal-deep);
+  }
+  .holiday-box .hb-head{
+    font-weight:700;
+    margin-bottom:3px;
+  }
+  .holiday-box .hb-year{
+    font-weight:600;
+    margin-top:5px;
+    margin-bottom:2px;
+    color:var(--violet);
+  }
+  .holiday-box .hb-row{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    color:var(--ink-soft);
+  }
+  .add-panel{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    background:var(--teal-pale);
+    border:1px solid var(--line);
+    border-left:4px solid var(--teal);
+    padding:1.4rem 1.5rem;
+    margin-top:1rem;
+    border-radius:14px;
+  }
+  .add-panel h3{
+    font-family:'Outfit','Poppins',sans-serif;
+    font-size:18px;
+    font-weight:600;
+    margin:0 0 1rem;
+  }
+  .add-grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr 1.6fr auto;
+    gap:0.7rem;
+    align-items:end;
+  }
+  .field label{
+    display:block;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    margin-bottom:0.3rem;
+  }
+  .field select, .field input{
+    width:100%;
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:13px;
+    padding:0.45rem 0.5rem;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:#ffffff;
+    color:var(--ink);
+  }
+  .btn{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    background:var(--teal);
+    color:#fff;
+    border:none;
+    padding:0.5rem 1rem;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .btn:hover{background:var(--teal-deep);}
+  .preview{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:0.6rem;
+    min-height:16px;
+  }
+  .preview b{color:var(--teal-deep);}
+  .festivos{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:2.5rem;
+    border-top:1px solid var(--line);
+    padding-top:1rem;
+    line-height:1.9;
+  }
+  .festivos summary{
+    cursor:pointer;
+    color:var(--ink);
+    font-size:12.5px;
+    margin-bottom:0.5rem;
+  }
+  .flist{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:0.2rem 1rem;
+  }
+  .save-msg{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:11px;
+    color:var(--teal-deep);
+    height:14px;
+  }
+  @media (max-width:720px){
+    .kpis{grid-template-columns:repeat(2,1fr);}
+    .add-grid{grid-template-columns:1fr;}
+    .flist{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="brand-block">
+      <img class="brand-logo" src="data:image/png;base64,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" alt="TTEC">
+      <h1>Vacation Tracker · Wink Office 2026</h1>
+    </div>
+    <div class="stamp">Tracking dashboard<br>Live updates</div>
+  </div>
+  <div class="subline">
+    <span>By team · business days calculated excluding weekends and 2026 Colombian public holidays</span>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div id="teams"></div>
+
+  <details class="festivos">
+    <summary>Colombian public holidays used in the calculation (2026)</summary>
+    <div class="flist" id="flist"></div>
+  </details>
+
+</div>
+
+<script>
+const HOLIDAYS = [
+  ["2026-01-01","New Year's Day"],
+  ["2026-01-12","Epiphany"],
+  ["2026-03-23","Saint Joseph's Day"],
+  ["2026-04-02","Maundy Thursday"],
+  ["2026-04-03","Good Friday"],
+  ["2026-05-01","Labor Day"],
+  ["2026-05-18","Ascension Day"],
+  ["2026-06-08","Corpus Christi"],
+  ["2026-06-15","Sacred Heart"],
+  ["2026-06-29","Saint Peter and Saint Paul"],
+  ["2026-07-13","Virgen de Chiquinquirá (new 2026 holiday)"],
+  ["2026-07-20","Independence Day"],
+  ["2026-08-07","Battle of Boyacá"],
+  ["2026-08-17","Assumption of Mary"],
+  ["2026-10-12","Columbus Day"],
+  ["2026-11-02","All Saints' Day"],
+  ["2026-11-11","Cartagena Independence Day"],
+  ["2026-12-08","Immaculate Conception"],
+  ["2026-12-25","Christmas Day"]
+];
+const HOLIDAY_SET = new Set(HOLIDAYS.map(h=>h[0]));
+
+const BLUES = ["#1d4ed8","#7c3aed","#059669","#4f46e5","#0d9488","#9333ea","#2563eb","#16a34a","#6d28d9","#0891b2"];
+const BLUES_TINT = ["#e3ebfd","#f0e8fd","#e1f5ee","#e8e7fc","#dcf3f1","#f2e6fc","#e5edfd","#e2f5e7","#efe6fc","#def4f8"];
+
+const TEAMS = [
+  {name:"Growth Mkt", members:["Maria Jimenez","Miguel Faudel","Juan Felipe Caicedo","Daniela Alfaro","Natalia Acosta"]},
+  {name:"Project Management", members:["Martha Gomez","Fabian Muñoz","Natalia Sogamoso"]},
+  {name:"Creative & Design", members:["Nicolas Agudelo","Sebastian Sarmiento","Daniel Castro","Freddy Arias","Elliot Villalba","Rafael Nieves"]},
+  {name:"BDR's", members:["Juan Arellano","Melissa Castiblanco","Hugo Camacho","Alfredo Nava","Ramiro Peña","Carolina Giraldo","Kyle Hartman","Monica Baron"]},
+  {name:"Cross Functional", members:["Rebeca Peña"]},
+  {name:"Copys, Paid Media, Community", members:["Angelica Bazurto","Juan Camilo Escobar","Lina Vargas","Ricardo Vilanova","Andres Romero"]},
+  {name:"Mkt - Digital", members:["Felipe Martinez","Alejandra Gaitan"]},
+  {name:"PR", members:["Luz Elena Mora"]},
+  {name:"Customer Success - Digital", members:["Maria Alejandra Mesa","Cristian Rios","Laura Martinez","Juan Ruiz"]},
+  {name:"Office Admin", members:["Maria Jose Salgado"]}
+].map((t,i)=>({...t, color:BLUES[i % BLUES.length], tint:BLUES_TINT[i % BLUES_TINT.length]}));
+
+const SYSTEM_DATA = {
+  "Nicolas Agudelo": {disfrutados:0, pendientes:52.36},
+  "Martha Gomez": {disfrutados:4, pendientes:47.88},
+  "Daniel Castro": {disfrutados:11, pendientes:40.88},
+  "Lina Vargas": {disfrutados:2, pendientes:40.64},
+  "Rafael Nieves": {disfrutados:0, pendientes:39.93},
+  "Freddy Arias": {disfrutados:0, pendientes:37.43},
+  "Rebeca Peña": {disfrutados:0, pendientes:34.79},
+  "Ramiro Peña": {disfrutados:13, pendientes:26.51},
+  "Miguel Faudel": {disfrutados:26, pendientes:23.93},
+  "Maria Jimenez": {disfrutados:20, pendientes:21.88},
+  "Angelica Bazurto": {disfrutados:29, pendientes:21.83},
+  "Alejandra Gaitan": {disfrutados:0, pendientes:21.67},
+  "Juan Arellano": {disfrutados:11, pendientes:21.22},
+  "Juan Camilo Escobar": {disfrutados:3, pendientes:21.1},
+  "Daniela Alfaro": {disfrutados:9, pendientes:19.89},
+  "Alfredo Nava": {disfrutados:24, pendientes:19.33},
+  "Elliot Villalba": {disfrutados:26, pendientes:19.28},
+  "Andres Romero": {disfrutados:18, pendientes:17.28},
+  "Fabian Muñoz": {disfrutados:3, pendientes:17.14},
+  "Sebastian Sarmiento": {disfrutados:18, pendientes:14.71},
+  "Juan Felipe Caicedo": {disfrutados:7, pendientes:14.67},
+  "Melissa Castiblanco": {disfrutados:11, pendientes:13.86},
+  "Hugo Camacho": {disfrutados:6, pendientes:11.78},
+  "Natalia Sogamoso": {disfrutados:0, pendientes:10.35},
+  "Ricardo Vilanova": {disfrutados:14, pendientes:10.1},
+  "Carolina Giraldo": {disfrutados:0, pendientes:9.38},
+  "Kyle Hartman": {disfrutados:4, pendientes:6.35},
+  "Felipe Martinez": {disfrutados:0, pendientes:4.93},
+  "Maria Jose Salgado": {disfrutados:0, pendientes:4.79},
+  "Monica Baron": {disfrutados:0, pendientes:0.63},
+  "Juan Ruiz": {disfrutados:0, pendientes:0.63}
+};
+
+const UNREGISTERED = {
+  "Daniel Castro": {total:17, entries:[
+    {dates:"Aug 21-29, 2025", days:7},
+    {dates:"Jun 9-12, 2026", days:4},
+    {dates:"Jun 16, 2026", days:1},
+    {dates:"Jun 29-Jul 3, 2026", days:5}
+  ], warning:"The Jun 29-Jul 3, 2026 range may be the same period as the request already uploaded to the system (Jun 25-Jul 4). Confirm with Daniel to avoid double counting."},
+  "Elliot Villalba": {total:17, entries:[
+    {dates:"Mar 10-26, 2025", days:13},
+    {dates:"Jan 26, 2026", days:1},
+    {dates:"Feb 13, 2026", days:1},
+    {dates:"Jun 16-17, 2026", days:2}
+  ]},
+  "Nicolas Agudelo": {total:14, entries:[
+    {dates:"Jun 19-27, 2025", days:6, note:"excluding the Jun 23 holiday"},
+    {dates:"Feb 2-11, 2026", days:8}
+  ]},
+  "Rafael Nieves": {total:10, entries:[
+    {dates:"Jan 2, 5, 6, 7, 8, 9, 13, 14, 15, 16, 2026 (single days)", days:10}
+  ]}
+};
+
+const SEED_REQUESTS = [
+  {emp:"Natalia Acosta", start:"2026-05-21", end:"2026-05-22", note:"Holiday Request Form 2026-2027, approved 4/20/2026"},
+  {emp:"Natalia Acosta", start:"2026-07-21", end:"2026-07-24", note:"due to the Jul 20 holiday"},
+  {emp:"Fabian Muñoz", start:"2026-08-18", end:"2026-08-31", note:""},
+  {emp:"Martha Gomez", start:"2026-08-05", end:"2026-08-17", note:"leaves on the 5th, returns on the 18th (bridge between the Boyaca and Asuncion holidays)"},
+  {emp:"Sebastian Sarmiento", start:"2026-06-26", end:"2026-07-02", note:""},
+  {emp:"Daniel Castro", start:"2026-06-25", end:"2026-07-04", note:""},
+  {emp:"Freddy Arias", start:"2026-07-06", end:"2026-07-20", note:""},
+  {emp:"Alfredo Nava", start:"2026-06-30", end:"2026-07-08", note:""},
+  {emp:"Hugo Camacho", start:"2026-07-02", end:"2026-07-03", note:"single days"},
+  {emp:"Hugo Camacho", start:"2026-07-06", end:"2026-07-07", note:"single days"},
+  {emp:"Juan Camilo Escobar", start:"2026-06-11", end:"2026-06-11", note:"single day"},
+  {emp:"Juan Camilo Escobar", start:"2026-06-19", end:"2026-06-19", note:"single day"},
+  {emp:"Andres Romero", start:"2026-06-19", end:"2026-07-03", note:"returns to work Jul 6"},
+  {emp:"Maria Alejandra Mesa", start:"2026-06-22", end:"2026-06-26", note:""},
+  {emp:"Rebeca Peña", start:"2026-07-23", end:"2026-07-27", note:"Bachelorette trip"},
+  {emp:"Rebeca Peña", start:"2026-08-06", end:"2026-08-10", note:"Wedding in Cali (Aug 7 Boyacá holiday excluded)"}
+];
+
+function businessDays(startStr, endStr){
+  const start = new Date(startStr+"T00:00:00");
+  const end = new Date(endStr+"T00:00:00");
+  let count = 0;
+  let d = new Date(start);
+  while(d <= end){
+    const day = d.getDay();
+    const iso = d.toISOString().slice(0,10);
+    if(day !== 0 && day !== 6 && !HOLIDAY_SET.has(iso)) count++;
+    d.setDate(d.getDate()+1);
+  }
+  return count;
+}
+
+function todayISO(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function isOnVacationToday(emp){
+  const today = todayISO();
+  return requests.some(r => r.emp === emp && today >= r.start && today <= r.end);
+}
+
+function fmt(dateStr){
+  const parts = dateStr.split("-");
+  const m = parts[1], d = parts[2];
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[parseInt(m)-1] + " " + parseInt(d);
+}
+
+let requests = [];
+let accrued = {};
+
+const HOLIDAY_FORMS = {
+  "Natalia Acosta": {
+    years: [
+      {
+        label: "2025-2026", entitlement: 25,
+        entries: [
+          {from:"Aug 15, 2025", to:"Aug 15, 2025", days:1, left:24, approvedDate:"-"},
+          {from:"Oct 20, 2025", to:"Oct 20, 2025", days:1, left:23, approvedDate:"10/15/2025"},
+          {from:"Dec 29, 2025", to:"Jan 2, 2026", days:4, left:19, approvedDate:"11/24/2025"},
+          {from:"Jan 21, 2026", to:"Jan 23, 2026", days:3, left:16, approvedDate:"1/8/2026"}
+        ]
+      },
+      {
+        label: "2026-2027", entitlement: 25,
+        entries: [
+          {from:"May 21, 2026", to:"May 22, 2026", days:2, left:23, approvedDate:"4/20/2026"},
+          {from:"Jul 21, 2026", to:"Jul 24, 2026", days:4, left:19, approvedDate:"7/9/2026"}
+        ]
+      }
+    ]
+  }
+};
+
+const NOTE_TRANSLATIONS = {
+  "por festivo del 20 de julio": "due to the Jul 20 holiday",
+  "sale el 5, regresa el 18 (puente entre Boyacá y Asunción)": "leaves on the 5th, returns on the 18th (bridge between the Boyacá and Asunción holidays)",
+  "días sueltos": "single days",
+  "día suelto": "single day",
+  "regreso a labores 6 de julio": "returns to work Jul 6",
+  "Holiday Request Form 2026-2027, aprobado 20/4/2026": "Holiday Request Form 2026-2027, approved 4/20/2026"
+};
+
+async function ensureMigrations(){
+  let changed = false;
+  requests.forEach(r=>{
+    if(NOTE_TRANSLATIONS[r.note] !== undefined){
+      r.note = NOTE_TRANSLATIONS[r.note];
+      changed = true;
+    }
+  });
+  const hasMayRequest = requests.some(function(r){ return r.emp === "Natalia Acosta" && r.start === "2026-05-21" && r.end === "2026-05-22"; });
+  if(!hasMayRequest){
+    requests.push({id:"r-migration-natalia-may", emp:"Natalia Acosta", start:"2026-05-21", end:"2026-05-22", note:"Holiday Request Form 2026-2027, approved 4/20/2026"});
+    changed = true;
+  }
+  const hasRebecaBachelorette = requests.some(function(r){ return r.emp === "Rebeca Peña" && r.start === "2026-07-23" && r.end === "2026-07-27"; });
+  if(!hasRebecaBachelorette){
+    requests.push({id:"r-migration-rebeca-bachelorette", emp:"Rebeca Peña", start:"2026-07-23", end:"2026-07-27", note:"Bachelorette trip"});
+    changed = true;
+  }
+  const hasRebecaWedding = requests.some(function(r){ return r.emp === "Rebeca Peña" && r.start === "2026-08-06" && r.end === "2026-08-10"; });
+  if(!hasRebecaWedding){
+    requests.push({id:"r-migration-rebeca-wedding", emp:"Rebeca Peña", start:"2026-08-06", end:"2026-08-10", note:"Wedding in Cali (Aug 7 Boyacá holiday excluded)"});
+    changed = true;
+  }
+  if(changed){
+    await saveRequests();
+  }
+}
+
+async function loadState(){
+  try{
+    const r = await window.storage.get("vacation-requests-2026", false);
+    requests = r ? JSON.parse(r.value) : SEED_REQUESTS.map((s,i)=>({id:"seed-"+i, ...s}));
+  }catch(e){
+    requests = SEED_REQUESTS.map((s,i)=>({id:"seed-"+i, ...s}));
+  }
+  try{
+    const r2 = await window.storage.get("vacation-accrued-2026", false);
+    accrued = r2 ? JSON.parse(r2.value) : {};
+  }catch(e){
+    accrued = {};
+  }
+}
+
+async function saveRequests(){
+  try{
+    await window.storage.set("vacation-requests-2026", JSON.stringify(requests), false);
+  }catch(e){
+    console.error("Could not save requests:", e);
+  }
+}
+async function saveAccrued(){
+  try{
+    await window.storage.set("vacation-accrued-2026", JSON.stringify(accrued), false);
+  }catch(e){
+    console.error("Could not save accrued:", e);
+  }
+}
+
+function flash(msg){
+  const el = document.getElementById("save-msg");
+  if(!el) return;
+  el.textContent = msg;
+  setTimeout(function(){ el.textContent=""; }, 2200);
+}
+
+function renderFestivos(){
+  const el = document.getElementById("flist");
+  el.innerHTML = HOLIDAYS.map(function(h){ return "<div>" + fmt(h[0]) + " - " + h[1] + "</div>"; }).join("");
+}
+
+function renderKPIs(){
+  const el = document.getElementById("kpis");
+  const totalReq = requests.length;
+  const totalEmployees = TEAMS.reduce((s,t)=>s+t.members.length,0);
+  const totalUnreg = Object.values(UNREGISTERED).reduce((s,u)=>s+u.total,0);
+  const allNames = TEAMS.flatMap(t=>t.members);
+  const onVacationNow = allNames.filter(n=>isOnVacationToday(n)).length;
+  el.innerHTML = `
+    <div class="kpi" style="background:#1d4ed8"><div class="n">${totalReq}</div><div class="l">Requests uploaded to the system</div></div>
+    <div class="kpi" style="background:#059669"><div class="n">${totalUnreg}</div><div class="l">Days found unregistered in the system</div></div>
+    <div class="kpi" style="background:#0d9488"><div class="n">${Object.keys(SYSTEM_DATA).length}/${totalEmployees}</div><div class="l">People with system data</div></div>
+    <div class="kpi" style="background:#dc2626"><div class="n">${onVacationNow}</div><div class="l">On vacation today</div></div>
+  `;
+}
+
+function renderTeams(){
+  const el = document.getElementById("teams");
+  el.innerHTML = "";
+  TEAMS.forEach(team=>{
+    const box = document.createElement("div");
+    box.className = "team";
+    const teamDaysTotal = team.members.reduce((s,m)=>{
+      const reqs = requests.filter(r=>r.emp===m);
+      return s + reqs.reduce((s2,r)=>s2+businessDays(r.start,r.end),0);
+    },0);
+    box.style.borderTop = `4px solid ${team.color}`;
+    box.innerHTML = `
+      <div class="team-head" style="background:${team.color}">
+        <h2>${team.name}</h2>
+        <span class="count">${team.members.length} people · ${teamDaysTotal} days taken in 2026</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:16%">Name</th>
+            <th style="width:42%">Requests uploaded to the system / unregistered days</th>
+            <th style="width:34%">Balance (system Jun 2026 - unregistered)</th>
+            <th style="width:8%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${team.members.map(m=>renderMemberRow(m,team)).join("")}
+        </tbody>
+      </table>
+    `;
+    el.appendChild(box);
+  });
+
+  document.querySelectorAll(".total-input").forEach(inp=>{
+    inp.addEventListener("change", async (e)=>{
+      const emp = e.target.dataset.emp;
+      const val = e.target.value.trim();
+      if(val === ""){ delete accrued[emp]; } else { accrued[emp] = parseFloat(val); }
+      await saveAccrued();
+      renderKPIs();
+      renderTeams();
+      flash("Saved");
+    });
+  });
+
+  document.querySelectorAll(".del").forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      const id = e.target.dataset.id;
+      requests = requests.filter(r=>r.id !== id);
+      await saveRequests();
+      renderKPIs();
+      renderTeams();
+      flash("Request deleted");
+    });
+  });
+}
+
+const DEFAULT_ACCRUED = 25;
+
+function renderMemberRow(m,team){
+  const reqs = requests.filter(r=>r.emp===m);
+  const chatDays = reqs.reduce((s,r)=>s+businessDays(r.start,r.end),0);
+  const sys = SYSTEM_DATA[m];
+  const unreg = UNREGISTERED[m];
+  const unregTotal = unreg ? unreg.total : 0;
+
+  const sysTotal = sys ? Math.round((sys.disfrutados + sys.pendientes)*100)/100 : null;
+  const total = (accrued[m] !== undefined && accrued[m] !== null && !isNaN(accrued[m])) ? accrued[m] : (sysTotal !== null ? sysTotal : DEFAULT_ACCRUED);
+
+  const usedBase = sys ? sys.disfrutados + unregTotal : chatDays;
+  const remainingAdjusted = sys ? Math.round((sys.pendientes - unregTotal)*100)/100 : (total - chatDays);
+  const pct = total > 0 ? Math.min(100, Math.max(0,(usedBase/total)*100)) : 0;
+  const barColor = remainingAdjusted < 0 ? "var(--red)" : team.color;
+
+  const holidayForm = HOLIDAY_FORMS[m];
+  const holidayFormHtml = holidayForm ? `
+    <div class="holiday-box">
+      <div class="hb-head">Individual Holiday Request Form</div>
+      ${holidayForm.years.map(y=>`
+        <div class="hb-year">${y.label} · ${y.entitlement} days allocated</div>
+        ${y.entries.map(e=>`<div class="hb-row"><span>${e.from} - ${e.to}</span><span>${e.days}d · ${e.left} left</span></div>`).join("")}
+      `).join("")}
+    </div>` : "";
+
+  const reqsHtml = reqs.length ? reqs.map(r=>{
+    const d = businessDays(r.start,r.end);
+    return `<div class="req-row">
+      <span class="req-dates">${fmt(r.start)} - ${fmt(r.end)}</span>
+      <span class="tag taken" style="background:${team.tint}; color:${team.color}">${d} day${d===1?'':'s'}</span>
+      <button class="del" data-id="${r.id}" title="Delete">delete</button>
+      ${r.note ? `<div class="req-note">${r.note}</div>` : ""}
+    </div>`;
+  }).join("") : `<span class="empty-cell">no requests uploaded yet</span>`;
+
+  const unregHtml = unreg ? `
+    <div class="unreg-box">
+      <div class="ub-head">Not registered in system · ${unreg.total} days</div>
+      ${unreg.entries.map(e=>`<div class="ub-row"><span>${e.dates}${e.note ? " ("+e.note+")" : ""}</span><span>${e.days}d</span></div>`).join("")}
+      ${unreg.warning ? `<div class="ub-warn">⚠ ${unreg.warning}</div>` : ""}
+    </div>` : "";
+
+  return `
+    <tr>
+      <td class="name ${isOnVacationToday(m) ? 'on-vacation' : ''}">${m}${isOnVacationToday(m) ? '<span class="vac-badge">On vacation</span>' : ''}</td>
+      <td>${reqsHtml}${unregHtml}${holidayFormHtml}</td>
+      <td class="usage-cell">
+        <div class="usage-top">
+          <span><span class="used-n">${Math.round(usedBase*100)/100}</span> used</span>
+          <span class="${remainingAdjusted < 0 ? 'balance low' : ''}">${remainingAdjusted} available</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${barColor}"></div></div>
+        <div class="usage-bottom">
+          <span>${sys ? 'system Jun 2026' : (holidayForm ? 'Individual Holiday Form' : 'no system data')}</span>
+          <span class="total-edit">of <input class="total-input" type="number" step="0.01" data-emp="${m}" value="${total}"> days</span>
+        </div>
+        ${(!sys && !holidayForm) ? `<div class="nosys">Default estimate - not yet reflected in the system consolidation.</div>` : ""}
+      </td>
+      <td></td>
+    </tr>
+  `;
+}
+
+async function init(){
+  await loadState();
+  await ensureMigrations();
+  renderFestivos();
+  renderKPIs();
+  renderTeams();
+}
+
+init();
+</script>
+</body>
+</html>
