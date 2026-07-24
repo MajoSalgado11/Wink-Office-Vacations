@@ -26,6 +26,53 @@
     --red-pale:#fcebeb;
   }
   *{box-sizing:border-box;}
+  .sh{
+    background:var(--teal-deep);
+    padding:0 28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    height:56px;
+  }
+  .sh-logo{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    object-fit:cover;
+    flex-shrink:0;
+  }
+  .sh-divider{width:1px;height:22px;background:rgba(255,255,255,.22);}
+  .sh-sub{
+    font-family:'Outfit','Poppins',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    color:#fff;
+    letter-spacing:0.01em;
+  }
+  .sh-stripe{height:3px;background:linear-gradient(90deg, var(--teal), var(--violet));}
+  .sf{
+    background:var(--teal-deep);
+    padding:14px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-top:2.5rem;
+  }
+  .sf-left{display:flex; align-items:center; gap:12px;}
+  .sf-logo{
+    width:24px;
+    height:24px;
+    border-radius:6px;
+    object-fit:cover;
+    flex-shrink:0;
+  }
+  .sf-text{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:11.5px;
+    color:rgba(255,255,255,.75);
+  }
+  .sf-text b{color:#fff; font-weight:600;}
   body{margin:0;}
   .wrap{
     font-family: 'Poppins','Inter',sans-serif;
@@ -110,7 +157,38 @@
     padding:1rem 1.1rem;
     color:#fff;
     border-radius:12px;
+    cursor:pointer;
+    transition:transform 0.12s ease, box-shadow 0.12s ease;
   }
+  .kpi:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(28,26,58,0.22);
+  }
+  @keyframes rowPulse{
+    0%{ box-shadow: inset 0 0 0 999px rgba(79,70,229,0.22); }
+    100%{ box-shadow: inset 0 0 0 999px rgba(79,70,229,0); }
+  }
+  tr.jump-highlight{
+    animation: rowPulse 1.6s ease-out 2;
+  }
+  .no-match-toast{
+    position:fixed;
+    left:50%;
+    bottom:28px;
+    transform:translateX(-50%);
+    background:var(--ink);
+    color:#fff;
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;
+    padding:0.6rem 1.1rem;
+    border-radius:9px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.25);
+    z-index:999;
+    opacity:0;
+    transition:opacity 0.25s ease;
+    pointer-events:none;
+  }
+  .no-match-toast.show{ opacity:1; }
   .kpi .n{
     font-size:28px;
     line-height:1;
@@ -131,12 +209,40 @@
     border-radius:14px;
   }
   .team-head{
+    cursor:pointer;
+    user-select:none;
     display:flex;
     justify-content:space-between;
     align-items:center;
     padding:0.85rem 1.2rem;
     color:#fff;
   }
+  .team-head-right{display:flex; align-items:center; gap:12px;}
+  .expand-label{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:10.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    padding:4px 10px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.18);
+    white-space:nowrap;
+  }
+  .team-body{display:none;}
+  .team.expanded .team-body{display:block;}
+  .expand-all-btn{
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--teal-deep);
+    background:var(--teal-pale);
+    border:1px solid var(--teal);
+    padding:6px 14px;
+    border-radius:20px;
+    cursor:pointer;
+  }
+  .expand-all-btn:hover{background:var(--teal); color:#fff;}
   .team-head h2{
     font-family:'Outfit','Poppins',sans-serif;
     font-size:17px;
@@ -200,6 +306,7 @@
     margin-left:6px;
   }
   .tag.taken{background:var(--teal-pale); color:var(--teal-deep);}
+  .tag.upcoming{background:var(--sand); color:var(--violet); font-style:italic;}
   .empty-cell{color:var(--ink-soft); font-style:italic; font-size:12px;}
   .del{
     background:none; border:none; color:var(--red); cursor:pointer;
@@ -419,6 +526,7 @@
 </style>
 </head>
 <body>
+<div class="sh-stripe"></div>
 <div class="wrap">
 
   <div class="masthead">
@@ -430,6 +538,7 @@
   </div>
   <div class="subline">
     <span>By team · business days calculated excluding weekends and 2026 Colombian public holidays</span>
+    <button id="expandAllBtn" class="expand-all-btn">Expand All</button>
   </div>
 
   <div class="kpis" id="kpis"></div>
@@ -442,6 +551,13 @@
   </details>
 
 </div>
+<footer class="sf">
+  <div class="sf-left">
+    <span class="sf-text">Wink Office · Vacation Tracker</span>
+  </div>
+  <span class="sf-text">Data compiled from HR system exports and confirmed requests · <b>2026</b></span>
+</footer>
+<div class="no-match-toast" id="no-match-toast"></div>
 
 <script>
 const HOLIDAYS = [
@@ -471,23 +587,21 @@ const BLUES = ["#1d4ed8","#7c3aed","#059669","#4f46e5","#0d9488","#9333ea","#256
 const BLUES_TINT = ["#e3ebfd","#f0e8fd","#e1f5ee","#e8e7fc","#dcf3f1","#f2e6fc","#e5edfd","#e2f5e7","#efe6fc","#def4f8"];
 
 const TEAMS = [
-  {name:"Growth Mkt", members:["Maria Jimenez","Miguel Faudel","Juan Felipe Caicedo","Daniela Alfaro","Natalia Acosta"]},
+  {name:"Growth Marketing", members:["Maria Jimenez","Miguel Faudel","Juan Felipe Caicedo","Daniela Alfaro","Natalia Acosta","Laura Diaz"]},
   {name:"Project Management", members:["Martha Gomez","Fabian Muñoz","Natalia Sogamoso"]},
-  {name:"Creative & Design", members:["Nicolas Agudelo","Sebastian Sarmiento","Daniel Castro","Freddy Arias","Elliot Villalba","Rafael Nieves"]},
-  {name:"BDR's", members:["Juan Arellano","Melissa Castiblanco","Hugo Camacho","Alfredo Nava","Ramiro Peña","Carolina Giraldo","Kyle Hartman","Monica Baron"]},
+  {name:"Creative & Design", members:["Nicolas Agudelo","Sebastian Sarmiento","Daniel Castro","Freddy Arias","Elliot Villalba","Rafael Nieves","Juan Camilo Escobar"]},
+  {name:"Pre-Sales", members:["Juan Arellano","Melissa Castiblanco","Hugo Camacho","Alfredo Nava","Ramiro Peña","Carolina Giraldo","Kyle Hartman","Monica Baron"]},
   {name:"Cross Functional", members:["Rebeca Peña"]},
-  {name:"Copys, Paid Media, Community", members:["Angelica Bazurto","Juan Camilo Escobar","Lina Vargas","Ricardo Vilanova","Andres Romero"]},
-  {name:"Mkt - Digital", members:["Felipe Martinez","Alejandra Gaitan"]},
-  {name:"PR", members:["Luz Elena Mora"]},
-  {name:"Customer Success - Digital", members:["Maria Alejandra Mesa","Cristian Rios","Laura Martinez","Juan Ruiz"]},
+  {name:"Marketing Operations", members:["Angelica Bazurto","Ricardo Vilanova","Andres Romero"]},
+  {name:"Marketing Digital", members:["Felipe Martinez","Alejandra Gaitan"]},
   {name:"Office Admin", members:["Maria Jose Salgado"]}
 ].map((t,i)=>({...t, color:BLUES[i % BLUES.length], tint:BLUES_TINT[i % BLUES_TINT.length]}));
 
 const SYSTEM_DATA = {
   "Nicolas Agudelo": {disfrutados:0, pendientes:52.36},
+  "Laura Diaz": {disfrutados:0, pendientes:0},
   "Martha Gomez": {disfrutados:4, pendientes:47.88},
   "Daniel Castro": {disfrutados:11, pendientes:40.88},
-  "Lina Vargas": {disfrutados:2, pendientes:40.64},
   "Rafael Nieves": {disfrutados:0, pendientes:39.93},
   "Freddy Arias": {disfrutados:0, pendientes:37.43},
   "Rebeca Peña": {disfrutados:0, pendientes:34.79},
@@ -514,7 +628,11 @@ const SYSTEM_DATA = {
   "Felipe Martinez": {disfrutados:0, pendientes:4.93},
   "Maria Jose Salgado": {disfrutados:0, pendientes:4.79},
   "Monica Baron": {disfrutados:0, pendientes:0.63},
-  "Juan Ruiz": {disfrutados:0, pendientes:0.63}
+  "Natalia Acosta": {disfrutados:11, pendientes:16.92}
+};
+
+const SOURCE_OVERRIDES = {
+  "Natalia Acosta": "Individual Holiday Form"
 };
 
 const UNREGISTERED = {
@@ -553,7 +671,6 @@ const SEED_REQUESTS = [
   {emp:"Juan Camilo Escobar", start:"2026-06-11", end:"2026-06-11", note:"single day"},
   {emp:"Juan Camilo Escobar", start:"2026-06-19", end:"2026-06-19", note:"single day"},
   {emp:"Andres Romero", start:"2026-06-19", end:"2026-07-03", note:"returns to work Jul 6"},
-  {emp:"Maria Alejandra Mesa", start:"2026-06-22", end:"2026-06-26", note:""},
   {emp:"Rebeca Peña", start:"2026-07-23", end:"2026-07-27", note:"Bachelorette trip"},
   {emp:"Rebeca Peña", start:"2026-08-06", end:"2026-08-10", note:"Wedding in Cali (Aug 7 Boyacá holiday excluded)"}
 ];
@@ -580,6 +697,25 @@ function todayISO(){
 function isOnVacationToday(emp){
   const today = todayISO();
   return requests.some(r => r.emp === emp && today >= r.start && today <= r.end);
+}
+
+// Only counts the part of a request that has already happened (start..min(end, today)).
+// A request entirely in the future returns 0 — it won't count against the balance until its days actually pass.
+function elapsedBusinessDays(startStr, endStr){
+  const today = todayISO();
+  if(startStr > today) return 0;
+  const effectiveEnd = endStr < today ? endStr : today;
+  return businessDays(startStr, effectiveEnd);
+}
+
+// Same idea, but for people with a SYSTEM_DATA snapshot: only counts days AFTER the snapshot's
+// cutoff date, since anything before that is presumed already baked into "disfrutados" —
+// otherwise a request that started before the cutoff would get subtracted from the balance twice.
+const SYSTEM_CUTOFF = "2026-07-01"; // first day NOT covered by the Jun 2026 close export
+function elapsedBusinessDaysSinceCutoff(startStr, endStr){
+  const effectiveStart = startStr < SYSTEM_CUTOFF ? SYSTEM_CUTOFF : startStr;
+  if(effectiveStart > endStr) return 0;
+  return elapsedBusinessDays(effectiveStart, endStr);
 }
 
 function fmt(dateStr){
@@ -624,69 +760,9 @@ const NOTE_TRANSLATIONS = {
   "Holiday Request Form 2026-2027, aprobado 20/4/2026": "Holiday Request Form 2026-2027, approved 4/20/2026"
 };
 
-async function ensureMigrations(){
-  let changed = false;
-  requests.forEach(r=>{
-    if(NOTE_TRANSLATIONS[r.note] !== undefined){
-      r.note = NOTE_TRANSLATIONS[r.note];
-      changed = true;
-    }
-  });
-  const hasMayRequest = requests.some(function(r){ return r.emp === "Natalia Acosta" && r.start === "2026-05-21" && r.end === "2026-05-22"; });
-  if(!hasMayRequest){
-    requests.push({id:"r-migration-natalia-may", emp:"Natalia Acosta", start:"2026-05-21", end:"2026-05-22", note:"Holiday Request Form 2026-2027, approved 4/20/2026"});
-    changed = true;
-  }
-  const hasRebecaBachelorette = requests.some(function(r){ return r.emp === "Rebeca Peña" && r.start === "2026-07-23" && r.end === "2026-07-27"; });
-  if(!hasRebecaBachelorette){
-    requests.push({id:"r-migration-rebeca-bachelorette", emp:"Rebeca Peña", start:"2026-07-23", end:"2026-07-27", note:"Bachelorette trip"});
-    changed = true;
-  }
-  const hasRebecaWedding = requests.some(function(r){ return r.emp === "Rebeca Peña" && r.start === "2026-08-06" && r.end === "2026-08-10"; });
-  if(!hasRebecaWedding){
-    requests.push({id:"r-migration-rebeca-wedding", emp:"Rebeca Peña", start:"2026-08-06", end:"2026-08-10", note:"Wedding in Cali (Aug 7 Boyacá holiday excluded)"});
-    changed = true;
-  }
-  if(changed){
-    await saveRequests();
-  }
-}
-
-async function loadState(){
-  try{
-    const r = await window.storage.get("vacation-requests-2026", false);
-    requests = r ? JSON.parse(r.value) : SEED_REQUESTS.map((s,i)=>({id:"seed-"+i, ...s}));
-  }catch(e){
-    requests = SEED_REQUESTS.map((s,i)=>({id:"seed-"+i, ...s}));
-  }
-  try{
-    const r2 = await window.storage.get("vacation-accrued-2026", false);
-    accrued = r2 ? JSON.parse(r2.value) : {};
-  }catch(e){
-    accrued = {};
-  }
-}
-
-async function saveRequests(){
-  try{
-    await window.storage.set("vacation-requests-2026", JSON.stringify(requests), false);
-  }catch(e){
-    console.error("Could not save requests:", e);
-  }
-}
-async function saveAccrued(){
-  try{
-    await window.storage.set("vacation-accrued-2026", JSON.stringify(accrued), false);
-  }catch(e){
-    console.error("Could not save accrued:", e);
-  }
-}
-
-function flash(msg){
-  const el = document.getElementById("save-msg");
-  if(!el) return;
-  el.textContent = msg;
-  setTimeout(function(){ el.textContent=""; }, 2200);
+function initState(){
+  requests = SEED_REQUESTS.map((s,i)=>({id:"seed-"+i, ...s}));
+  accrued = {};
 }
 
 function renderFestivos(){
@@ -702,11 +778,52 @@ function renderKPIs(){
   const allNames = TEAMS.flatMap(t=>t.members);
   const onVacationNow = allNames.filter(n=>isOnVacationToday(n)).length;
   el.innerHTML = `
-    <div class="kpi" style="background:#1d4ed8"><div class="n">${totalReq}</div><div class="l">Requests uploaded to the system</div></div>
-    <div class="kpi" style="background:#059669"><div class="n">${totalUnreg}</div><div class="l">Days found unregistered in the system</div></div>
-    <div class="kpi" style="background:#0d9488"><div class="n">${Object.keys(SYSTEM_DATA).length}/${totalEmployees}</div><div class="l">People with system data</div></div>
-    <div class="kpi" style="background:#dc2626"><div class="n">${onVacationNow}</div><div class="l">On vacation today</div></div>
+    <div class="kpi" style="background:#1d4ed8" data-kpi="requests"><div class="n">${totalReq}</div><div class="l">Requests uploaded to the system</div></div>
+    <div class="kpi" style="background:#059669" data-kpi="unregistered"><div class="n">${totalUnreg}</div><div class="l">Days found unregistered in the system</div></div>
+    <div class="kpi" style="background:#0d9488" data-kpi="sysdata"><div class="n">${Object.keys(SYSTEM_DATA).length}/${totalEmployees}</div><div class="l">People with system data</div></div>
+    <div class="kpi" style="background:#dc2626" data-kpi="onvacation"><div class="n">${onVacationNow}</div><div class="l">On vacation today</div></div>
   `;
+
+  const selectors = {
+    requests: '[data-has-requests="true"]',
+    unregistered: '[data-has-unreg="true"]',
+    sysdata: '[data-has-sys="true"]',
+    onvacation: '[data-on-vacation="true"]'
+  };
+  const noMatchMsg = {
+    requests: "No one has requests uploaded to the system yet.",
+    unregistered: "No unregistered days found right now.",
+    sysdata: "No one has system data yet.",
+    onvacation: "No one is on vacation today."
+  };
+
+  el.querySelectorAll(".kpi").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      const key = card.dataset.kpi;
+      const matches = document.querySelectorAll(selectors[key]);
+      if(matches.length === 0){
+        const toast = document.getElementById("no-match-toast");
+        toast.textContent = noMatchMsg[key];
+        toast.classList.add("show");
+        setTimeout(()=>toast.classList.remove("show"), 2000);
+        return;
+      }
+      matches.forEach(row=>{
+        const teamBox = row.closest(".team");
+        if(teamBox && !teamBox.classList.contains("expanded")){
+          teamBox.classList.add("expanded");
+          const label = teamBox.querySelector(".expand-label");
+          if(label) label.textContent = "Collapse";
+        }
+      });
+      matches[0].scrollIntoView({behavior:"smooth", block:"center"});
+      matches.forEach(row=>{
+        row.classList.remove("jump-highlight");
+        void row.offsetWidth; // restart animation
+        row.classList.add("jump-highlight");
+      });
+    });
+  });
 }
 
 function renderTeams(){
@@ -723,8 +840,12 @@ function renderTeams(){
     box.innerHTML = `
       <div class="team-head" style="background:${team.color}">
         <h2>${team.name}</h2>
-        <span class="count">${team.members.length} people · ${teamDaysTotal} days taken in 2026</span>
+        <div class="team-head-right">
+          <span class="count">${team.members.length} people · ${teamDaysTotal} days taken in 2026</span>
+          <span class="expand-label">Expand</span>
+        </div>
       </div>
+      <div class="team-body">
       <table>
         <thead>
           <tr>
@@ -738,31 +859,28 @@ function renderTeams(){
           ${team.members.map(m=>renderMemberRow(m,team)).join("")}
         </tbody>
       </table>
+      </div>
     `;
     el.appendChild(box);
-  });
-
-  document.querySelectorAll(".total-input").forEach(inp=>{
-    inp.addEventListener("change", async (e)=>{
-      const emp = e.target.dataset.emp;
-      const val = e.target.value.trim();
-      if(val === ""){ delete accrued[emp]; } else { accrued[emp] = parseFloat(val); }
-      await saveAccrued();
-      renderKPIs();
-      renderTeams();
-      flash("Saved");
+    box.querySelector(".team-head").addEventListener("click", ()=>{
+      const expanded = box.classList.toggle("expanded");
+      box.querySelector(".expand-label").textContent = expanded ? "Collapse" : "Expand";
     });
   });
+}
 
-  document.querySelectorAll(".del").forEach(btn=>{
-    btn.addEventListener("click", async (e)=>{
-      const id = e.target.dataset.id;
-      requests = requests.filter(r=>r.id !== id);
-      await saveRequests();
-      renderKPIs();
-      renderTeams();
-      flash("Request deleted");
+function initExpandAll(){
+  const btn = document.getElementById("expandAllBtn");
+  if(!btn) return;
+  btn.addEventListener("click", ()=>{
+    const teams = document.querySelectorAll(".team");
+    const anyCollapsed = [...teams].some(t=>!t.classList.contains("expanded"));
+    teams.forEach(t=>{
+      t.classList.toggle("expanded", anyCollapsed);
+      const label = t.querySelector(".expand-label");
+      if(label) label.textContent = anyCollapsed ? "Collapse" : "Expand";
     });
+    btn.textContent = anyCollapsed ? "Collapse All" : "Expand All";
   });
 }
 
@@ -770,16 +888,18 @@ const DEFAULT_ACCRUED = 25;
 
 function renderMemberRow(m,team){
   const reqs = requests.filter(r=>r.emp===m);
-  const chatDays = reqs.reduce((s,r)=>s+businessDays(r.start,r.end),0);
   const sys = SYSTEM_DATA[m];
+  const elapsedChatDays = sys
+    ? reqs.reduce((s,r)=>s+elapsedBusinessDaysSinceCutoff(r.start,r.end),0)
+    : reqs.reduce((s,r)=>s+elapsedBusinessDays(r.start,r.end),0);
   const unreg = UNREGISTERED[m];
   const unregTotal = unreg ? unreg.total : 0;
 
   const sysTotal = sys ? Math.round((sys.disfrutados + sys.pendientes)*100)/100 : null;
   const total = (accrued[m] !== undefined && accrued[m] !== null && !isNaN(accrued[m])) ? accrued[m] : (sysTotal !== null ? sysTotal : DEFAULT_ACCRUED);
 
-  const usedBase = sys ? sys.disfrutados + unregTotal : chatDays;
-  const remainingAdjusted = sys ? Math.round((sys.pendientes - unregTotal)*100)/100 : (total - chatDays);
+  const usedBase = sys ? sys.disfrutados + unregTotal + elapsedChatDays : elapsedChatDays;
+  const remainingAdjusted = sys ? Math.round((sys.pendientes - unregTotal - elapsedChatDays)*100)/100 : Math.round((total - elapsedChatDays)*100)/100;
   const pct = total > 0 ? Math.min(100, Math.max(0,(usedBase/total)*100)) : 0;
   const barColor = remainingAdjusted < 0 ? "var(--red)" : team.color;
 
@@ -793,12 +913,20 @@ function renderMemberRow(m,team){
       `).join("")}
     </div>` : "";
 
+  const today = todayISO();
   const reqsHtml = reqs.length ? reqs.map(r=>{
     const d = businessDays(r.start,r.end);
+    const elapsed = elapsedBusinessDays(r.start,r.end);
+    let statusTag = "";
+    if(r.start > today){
+      statusTag = `<span class="tag upcoming">upcoming</span>`;
+    } else if(elapsed < d){
+      statusTag = `<span class="tag upcoming">in progress</span>`;
+    }
     return `<div class="req-row">
       <span class="req-dates">${fmt(r.start)} - ${fmt(r.end)}</span>
       <span class="tag taken" style="background:${team.tint}; color:${team.color}">${d} day${d===1?'':'s'}</span>
-      <button class="del" data-id="${r.id}" title="Delete">delete</button>
+      ${statusTag}
       ${r.note ? `<div class="req-note">${r.note}</div>` : ""}
     </div>`;
   }).join("") : `<span class="empty-cell">no requests uploaded yet</span>`;
@@ -810,9 +938,10 @@ function renderMemberRow(m,team){
       ${unreg.warning ? `<div class="ub-warn">⚠ ${unreg.warning}</div>` : ""}
     </div>` : "";
 
+  const onVacNow = isOnVacationToday(m);
   return `
-    <tr>
-      <td class="name ${isOnVacationToday(m) ? 'on-vacation' : ''}">${m}${isOnVacationToday(m) ? '<span class="vac-badge">On vacation</span>' : ''}</td>
+    <tr class="emp-row" data-emp="${m}" data-has-requests="${reqs.length>0}" data-has-unreg="${!!unreg}" data-has-sys="${!!sys}" data-on-vacation="${onVacNow}">
+      <td class="name ${onVacNow ? 'on-vacation' : ''}">${m}${onVacNow ? '<span class="vac-badge">On vacation</span>' : ''}</td>
       <td>${reqsHtml}${unregHtml}${holidayFormHtml}</td>
       <td class="usage-cell">
         <div class="usage-top">
@@ -821,8 +950,8 @@ function renderMemberRow(m,team){
         </div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${barColor}"></div></div>
         <div class="usage-bottom">
-          <span>${sys ? 'system Jun 2026' : (holidayForm ? 'Individual Holiday Form' : 'no system data')}</span>
-          <span class="total-edit">of <input class="total-input" type="number" step="0.01" data-emp="${m}" value="${total}"> days</span>
+          <span>${sys ? (SOURCE_OVERRIDES[m] || 'system Jun 2026') : (holidayForm ? 'Individual Holiday Form' : 'no system data')}</span>
+          <span class="total-edit">of ${total} days</span>
         </div>
         ${(!sys && !holidayForm) ? `<div class="nosys">Default estimate - not yet reflected in the system consolidation.</div>` : ""}
       </td>
@@ -831,12 +960,12 @@ function renderMemberRow(m,team){
   `;
 }
 
-async function init(){
-  await loadState();
-  await ensureMigrations();
+function init(){
+  initState();
   renderFestivos();
   renderKPIs();
   renderTeams();
+  initExpandAll();
 }
 
 init();
